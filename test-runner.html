@@ -160,6 +160,18 @@ function setVal(el, val) {
 }
 function triggerInput(el) { el && el.dispatchEvent(new Event('input', {bubbles:true})); }
 
+async function openWatermarkPanel(doc) {
+  click(q(doc, '#bg-toggle'));
+  await sleep(200);
+  click(q(doc, '#bg-tab-colour'));
+  await sleep(100);
+  const row = q(doc, '#bg-watermark-row');
+  if (row && row.style.display !== 'flex') {
+    click(q(doc, '#bg-watermark-toggle'));
+    await sleep(200);
+  }
+}
+
 // Helper: wait for condition with timeout
 async function waitFor(fn, timeout=2000, interval=50) {
   const start = Date.now();
@@ -604,7 +616,7 @@ test('Background', 'Reset button clears background to white', async (fr, win, do
   return bg === 'white' || bg === 'rgb(255, 255, 255)' || bg === '';
 });
 
-test('Background', 'Switching from Colour to Blank clears backgroundImage (no grey area)', async (fr, win, doc) => {
+test('Background', 'Reset clears backgroundImage (no grey area)', async (fr, win, doc) => {
   click(q(doc, '#bg-toggle'));
   await sleep(200);
   click(q(doc, '#bg-tab-colour'));
@@ -613,9 +625,10 @@ test('Background', 'Switching from Colour to Blank clears backgroundImage (no gr
   picker.value = '#ff0000';
   triggerInput(picker);
   await sleep(100);
-  click(q(doc, '#bg-tab-none'));
-  await sleep(200);
   const page = q(doc, '#a4-page');
+  page.style.backgroundImage = 'url(fake)';
+  click(q(doc, '#bg-reset-all'));
+  await sleep(200);
   const bgImg = page.style.backgroundImage;
   click(q(doc, '#bg-toggle'));
   if (bgImg && bgImg !== 'none' && bgImg !== '') throw `backgroundImage not cleared: ${bgImg}`;
@@ -643,10 +656,7 @@ test('Watermark', 'Watermark text input max 25 chars', async (fr, win, doc) => {
 });
 
 test('Watermark', 'Character counter updates', async (fr, win, doc) => {
-  click(q(doc, '#bg-toggle'));
-  await sleep(200);
-  click(q(doc, '#bg-tab-watermark'));
-  await sleep(200);
+  await openWatermarkPanel(doc);
   setVal(q(doc, '#wm-text'), 'TEST');
   await sleep(100);
   const count = q(doc, '#wm-text-count');
@@ -656,10 +666,7 @@ test('Watermark', 'Character counter updates', async (fr, win, doc) => {
 });
 
 test('Watermark', 'Watermark renders SVG on text input', async (fr, win, doc) => {
-  click(q(doc, '#bg-toggle'));
-  await sleep(200);
-  click(q(doc, '#bg-tab-watermark'));
-  await sleep(200);
+  await openWatermarkPanel(doc);
   setVal(q(doc, '#wm-text'), 'DRAFT');
   await sleep(300);
   const wm = q(doc, '#watermark');
@@ -669,10 +676,7 @@ test('Watermark', 'Watermark renders SVG on text input', async (fr, win, doc) =>
 });
 
 test('Watermark', 'Wave/Spiral hint appears for long text', async (fr, win, doc) => {
-  click(q(doc, '#bg-toggle'));
-  await sleep(200);
-  click(q(doc, '#bg-tab-watermark'));
-  await sleep(200);
+  await openWatermarkPanel(doc);
   setVal(q(doc, '#wm-text'), '12345678901'); // 11 chars > 10
   q(doc, '.wm-style-btn[data-style="wave"]').click();
   await sleep(200);
@@ -683,10 +687,7 @@ test('Watermark', 'Wave/Spiral hint appears for long text', async (fr, win, doc)
 });
 
 test('Watermark', 'Clear button empties watermark', async (fr, win, doc) => {
-  click(q(doc, '#bg-toggle'));
-  await sleep(200);
-  click(q(doc, '#bg-tab-watermark'));
-  await sleep(200);
+  await openWatermarkPanel(doc);
   setVal(q(doc, '#wm-text'), 'CLEAR ME');
   await sleep(300);
   click(q(doc, '#wm-clear'));
@@ -791,7 +792,7 @@ test('Help', 'Help button opens modal', async (fr, win, doc) => {
   click(q(doc, '#help-btn'));
   await sleep(200);
   const overlay = q(doc, '#help-overlay');
-  const open = overlay && overlay.style.display !== 'none';
+  const open = overlay && overlay.classList.contains('open');
   if (open) click(q(doc, '#help-close'));
   return open;
 });

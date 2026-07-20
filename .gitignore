@@ -1,0 +1,4 @@
+.playwright-mcp/
+archive/
+.vscode/
+.claude/settings.local.json
