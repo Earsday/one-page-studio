@@ -1,5 +1,7 @@
 # One-Page Studio
 
+<p align="right">EN | <a href="README.zh-CN.md">简中</a> | <a href="README.zh-TW.md">繁中</a> | <a href="README.ja.md">日本語</a> | <a href="README.ko.md">한국어</a></p>
+
 A single-file HTML tool for printing large-text notifications on paper. No installation, no server — just open and print.
 
 ![One-Page Studio](https://img.shields.io/badge/version-2026--07--20-blue) ![License](https://img.shields.io/badge/license-MIT-green)
