@@ -22,8 +22,8 @@
 
 ## 使い方
 
-1. `print-notification.html` をダウンロード
-2. ブラウザで開く（ダブルクリックまたは `open print-notification.html`）
+1. `one-page-studio.html` をダウンロード
+2. ブラウザで開く（ダブルクリックまたは `open one-page-studio.html`）
 3. 通知テキストを入力
 4. **Print** をクリック
 
@@ -34,7 +34,7 @@
 URL でテキストを渡すと、読み込み時に自動レンダリングされます。
 
 ```
-print-notification.html?text=URGENT+NOTICE
+one-page-studio.html?text=URGENT+NOTICE
 ```
 
 ## クイックスタート
@@ -57,8 +57,8 @@ print-notification.html?text=URGENT+NOTICE
 
 ```
 one-page-studio/
-├── print-notification.html      # メインアプリ（ソース）
-├── print-notification.min.html  # 配布用の圧縮版
+├── one-page-studio.html      # メインアプリ（ソース）
+├── one-page-studio.min.html  # 配布用の圧縮版
 ├── test-runner.html             # 回帰テストスイート
 ├── archive/                     # バージョン別バックアップ
 └── docs/                        # 設計仕様と実装メモ
@@ -75,7 +75,7 @@ open http://localhost:8900/test-runner.html
 
 特定バージョンをテストする場合:
 ```
-http://localhost:8900/test-runner.html?target=print-notification.min.html
+http://localhost:8900/test-runner.html?target=one-page-studio.min.html
 ```
 
 ## ブラウザ対応

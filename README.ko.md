@@ -22,8 +22,8 @@
 
 ## 사용 방법
 
-1. `print-notification.html` 다운로드
-2. 브라우저에서 열기(더블클릭 또는 `open print-notification.html` 실행)
+1. `one-page-studio.html` 다운로드
+2. 브라우저에서 열기(더블클릭 또는 `open one-page-studio.html` 실행)
 3. 알림 텍스트 입력
 4. **Print** 클릭
 
@@ -34,7 +34,7 @@
 URL로 텍스트를 전달하면 로드 시 자동 렌더링됩니다.
 
 ```
-print-notification.html?text=URGENT+NOTICE
+one-page-studio.html?text=URGENT+NOTICE
 ```
 
 ## 빠른 시작
@@ -57,8 +57,8 @@ print-notification.html?text=URGENT+NOTICE
 
 ```
 one-page-studio/
-├── print-notification.html      # 메인 앱(소스)
-├── print-notification.min.html  # 배포용 축약 버전
+├── one-page-studio.html      # 메인 앱(소스)
+├── one-page-studio.min.html  # 배포용 축약 버전
 ├── test-runner.html             # 회귀 테스트 스위트
 ├── archive/                     # 버전 백업
 └── docs/                        # 설계 명세 및 구현 노트
@@ -75,7 +75,7 @@ open http://localhost:8900/test-runner.html
 
 특정 버전 테스트:
 ```
-http://localhost:8900/test-runner.html?target=print-notification.min.html
+http://localhost:8900/test-runner.html?target=one-page-studio.min.html
 ```
 
 ## 브라우저 호환성

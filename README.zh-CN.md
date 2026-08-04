@@ -22,8 +22,8 @@
 
 ## 使用方法
 
-1. 下载 `print-notification.html`
-2. 用浏览器打开（双击或执行 `open print-notification.html`）
+1. 下载 `one-page-studio.html`
+2. 用浏览器打开（双击或执行 `open one-page-studio.html`）
 3. 输入通知文本
 4. 点击 **Print**
 
@@ -34,7 +34,7 @@
 通过 URL 传入文本可在加载后自动渲染：
 
 ```
-print-notification.html?text=URGENT+NOTICE
+one-page-studio.html?text=URGENT+NOTICE
 ```
 
 ## 快速开始
@@ -57,8 +57,8 @@ print-notification.html?text=URGENT+NOTICE
 
 ```
 one-page-studio/
-├── print-notification.html      # 主应用（源码）
-├── print-notification.min.html  # 用于分发的压缩版
+├── one-page-studio.html      # 主应用（源码）
+├── one-page-studio.min.html  # 用于分发的压缩版
 ├── test-runner.html             # 回归测试套件
 ├── archive/                     # 版本归档备份
 └── docs/                        # 设计规范与实现说明
@@ -75,7 +75,7 @@ open http://localhost:8900/test-runner.html
 
 测试指定版本：
 ```
-http://localhost:8900/test-runner.html?target=print-notification.min.html
+http://localhost:8900/test-runner.html?target=one-page-studio.min.html
 ```
 
 ## 浏览器兼容性

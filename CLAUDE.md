@@ -4,32 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A single self-contained HTML file (`print-notification.html`) — no build tools, no dependencies, no server required. Open directly via `file://` in a browser.
+A single self-contained HTML file (`one-page-studio.html`) — no build tools, no dependencies, no server required. Open directly via `file://` in a browser.
 
 ## Running / Testing
 
 Open the file in a browser:
 ```
-open print-notification.html
+open one-page-studio.html
 ```
 
 Or test URL-param mode:
 ```
-open "print-notification.html?text=HELLO"
+open "one-page-studio.html?text=HELLO"
 ```
 
 Run regression tests (requires HTTP server for iframe access):
 ```
 python3 -m http.server 8900
 open http://localhost:8900/test-runner.html
-# Test specific version: http://localhost:8900/test-runner.html?target=print-notification.min.html
+# Test specific version: http://localhost:8900/test-runner.html?target=one-page-studio.min.html
 ```
 
 There are no unit tests, no linter, no build step.
 
 ## Architecture
 
-Everything lives in `print-notification.html`: HTML structure, `<style>` block (CSS), and `<script>` block (JS).
+Everything lives in `one-page-studio.html`: HTML structure, `<style>` block (CSS), and `<script>` block (JS).
 
 ### Key JS Functions
 
@@ -121,8 +121,8 @@ The About dialog shows a version timestamp (`YYYY-MM-DD HH:MM`) in a `<span clas
 ## Verification Checklist
 
 After any change, manually verify:
-1. `open print-notification.html` — Quick Start renders, text field focused, live preview works
-2. `open "print-notification.html?text=URGENT"` — auto-renders, no input UI
+1. `open one-page-studio.html` — Quick Start renders, text field focused, live preview works
+2. `open "one-page-studio.html?text=URGENT"` — auto-renders, no input UI
 3. CJK split: `通知7月25日()7月26日()休息` → 4 lines; `某某某 医生1.2（周三）1.3（周四）门诊停诊` → 4 lines
 4. Auto-wrap Lines OFF → content renders as single unwrapped line, font recalculates
 5. Rotate → orientation switches, font recalculates; subsequent typing preserves orientation

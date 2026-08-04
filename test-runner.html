@@ -1041,7 +1041,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 });
 
 // ── Target file from URL param ────────────────────────────────────────────────
-var targetFile = new URLSearchParams(window.location.search).get('target') || 'print-notification.html';
+var targetFile = new URLSearchParams(window.location.search).get('target') || 'one-page-studio.html';
 frame.src = targetFile;
 document.querySelector('#sidebar-header h1').textContent = 'Regression Tests — ' + targetFile;
 

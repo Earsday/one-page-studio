@@ -22,8 +22,8 @@ A single-file HTML tool for printing large-text notifications on paper. No insta
 
 ## Usage
 
-1. Download `print-notification.html`
-2. Open it in your browser (double-click or `open print-notification.html`)
+1. Download `one-page-studio.html`
+2. Open it in your browser (double-click or `open one-page-studio.html`)
 3. Type your notification text
 4. Click **Print**
 
@@ -34,7 +34,7 @@ No build tools, no dependencies, no server required. Works entirely from `file:/
 Pass text via URL to auto-render on load:
 
 ```
-print-notification.html?text=URGENT+NOTICE
+one-page-studio.html?text=URGENT+NOTICE
 ```
 
 ## Quick Start
@@ -57,8 +57,8 @@ print-notification.html?text=URGENT+NOTICE
 
 ```
 one-page-studio/
-├── print-notification.html      # Main app (source)
-├── print-notification.min.html  # Minified version for distribution
+├── one-page-studio.html      # Main app (source)
+├── one-page-studio.min.html  # Minified version for distribution
 ├── test-runner.html             # Regression test suite
 ├── archive/                     # Versioned backups
 └── docs/                        # Design specs and implementation notes
@@ -75,7 +75,7 @@ open http://localhost:8900/test-runner.html
 
 Test a specific version:
 ```
-http://localhost:8900/test-runner.html?target=print-notification.min.html
+http://localhost:8900/test-runner.html?target=one-page-studio.min.html
 ```
 
 ## Browser Compatibility

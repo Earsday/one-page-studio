@@ -2,11 +2,11 @@
 
 **Last updated:** 2026-07-20
 
-> This plan reflects the current implemented state of `print-notification.html`.
+> This plan reflects the current implemented state of `one-page-studio.html`.
 
 **Goal:** Single HTML file that accepts text, auto-splits on date/number patterns, auto-calculates maximum font size, auto-selects orientation, supports multiple paper sizes, rich text formatting, and prints with optional background/watermark.
 
-**Architecture:** Self-contained `print-notification.html` — HTML + CSS + JS, no external dependencies, works via `file://`. Two hidden measure containers (`opacity:0`) drive binary-search font sizing. `@page` rule injected dynamically.
+**Architecture:** Self-contained `one-page-studio.html` — HTML + CSS + JS, no external dependencies, works via `file://`. Two hidden measure containers (`opacity:0`) drive binary-search font sizing. `@page` rule injected dynamically.
 
 **Tech Stack:** Vanilla HTML5, CSS3, JavaScript (ES6+)
 
@@ -122,11 +122,11 @@ Rendered as inline SVG (`#watermark`, z-index:0). Six styles with group + Outlin
 
 | File | Purpose |
 |------|---------|
-| `print-notification.html` | Entire app |
-| `print-notification.min.html` | Minified distribution version |
+| `one-page-studio.html` | Entire app |
+| `one-page-studio.min.html` | Minified distribution version |
 | `test-runner.html` | Regression test suite (requires HTTP server) |
 | `.claude/settings.local.json` | PostToolUse hook (auto-version-update) |
 | `.claude/skills/backup-html/SKILL.md` | `/backup-html` skill — archives to `archive/` |
 | `archive/` | Versioned HTML backups |
-| `docs/superpowers/specs/2026-07-17-print-notification-design.md` | Design spec |
-| `docs/superpowers/plans/2026-07-17-print-notification-plan.md` | This file |
+| `docs/superpowers/specs/2026-07-17-one-page-studio-design.md` | Design spec |
+| `docs/superpowers/plans/2026-07-17-one-page-studio-plan.md` | This file |

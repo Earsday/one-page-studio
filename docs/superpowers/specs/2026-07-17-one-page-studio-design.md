@@ -23,7 +23,7 @@ A single-file HTML page that:
 
 ## Architecture
 
-Single file: `print-notification.html` — no external dependencies, no build tools, works via `file://` protocol.
+Single file: `one-page-studio.html` — no external dependencies, no build tools, works via `file://` protocol.
 
 ### Modes
 
@@ -141,7 +141,7 @@ Three modes accessible from header:
 
 | File | Purpose |
 |------|---------|
-| `print-notification.html` | Entire app — HTML, CSS, JS in one file |
+| `one-page-studio.html` | Entire app — HTML, CSS, JS in one file |
 | `.claude/settings.local.json` | PostToolUse hook for auto-version-update |
 | `.claude/skills/backup-html/SKILL.md` | Project skill for versioned backup to `archive/` |
 
@@ -149,7 +149,7 @@ Three modes accessible from header:
 
 ## Verification
 
-1. Open `print-notification.html` directly — text input field is focused automatically
+1. Open `one-page-studio.html` directly — text input field is focused automatically
 2. Type `HELLO` → Preview → large text centered, landscape orientation
 3. Type `某某某 医生1.2（周三）1.3（周四）门诊停诊` → 4 lines, maximally sized
 4. Type a long English sentence → word wrap respects word boundaries

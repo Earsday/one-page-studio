@@ -22,8 +22,8 @@
 
 ## 使用方式
 
-1. 下載 `print-notification.html`
-2. 用瀏覽器開啟（雙擊或執行 `open print-notification.html`）
+1. 下載 `one-page-studio.html`
+2. 用瀏覽器開啟（雙擊或執行 `open one-page-studio.html`）
 3. 輸入通知文字
 4. 點擊 **Print**
 
@@ -34,7 +34,7 @@
 透過 URL 傳入文字可在載入後自動渲染：
 
 ```
-print-notification.html?text=URGENT+NOTICE
+one-page-studio.html?text=URGENT+NOTICE
 ```
 
 ## 快速開始
@@ -57,8 +57,8 @@ print-notification.html?text=URGENT+NOTICE
 
 ```
 one-page-studio/
-├── print-notification.html      # 主程式（原始碼）
-├── print-notification.min.html  # 發佈用壓縮版本
+├── one-page-studio.html      # 主程式（原始碼）
+├── one-page-studio.min.html  # 發佈用壓縮版本
 ├── test-runner.html             # 回歸測試套件
 ├── archive/                     # 版本備份
 └── docs/                        # 設計規格與實作說明
@@ -75,7 +75,7 @@ open http://localhost:8900/test-runner.html
 
 測試特定版本：
 ```
-http://localhost:8900/test-runner.html?target=print-notification.min.html
+http://localhost:8900/test-runner.html?target=one-page-studio.min.html
 ```
 
 ## 瀏覽器相容性
