@@ -24,9 +24,11 @@ open "one-page-printing-studio.html?text=HELLO"  # URL-param mode
 Run regression tests (requires HTTP server for iframe access):
 ```bash
 python3 -m http.server 8900
-open http://localhost:8900/test-runner.html
+open "http://localhost:8900/test-runner.html?target=one-page-studio.html"
 open "http://localhost:8900/test-runner.html?target=one-page-printing-studio.html"
 ```
+
+Test definitions live in `tests/<target-basename>.tests.js` — the runner loads them dynamically. To add tests for a new app, create `tests/<new-app>.tests.js`; `test-runner.html` never needs to change.
 
 There are no unit tests, no linter, no build step.
 
@@ -152,7 +154,19 @@ The About dialog shows a version timestamp (`YYYY-MM-DD HH:MM`) in a `<span clas
 
 ### Minified Version
 
-`one-page-studio.min.html` is a distribution copy of v1. It is **not** auto-generated — update it manually when releasing.
+`one-page-studio.min.html` and `one-page-printing-studio.min.html` are distribution copies of v1 and v2 respectively. Neither is auto-generated — regenerate manually when releasing:
+
+```bash
+html-minifier-terser --collapse-whitespace --remove-comments --remove-optional-tags \
+  --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace \
+  --use-short-doctype --minify-css true --minify-js true \
+  -o one-page-studio.min.html one-page-studio.html
+
+html-minifier-terser --collapse-whitespace --remove-comments --remove-optional-tags \
+  --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace \
+  --use-short-doctype --minify-css true --minify-js true \
+  -o one-page-printing-studio.min.html one-page-printing-studio.html
+```
 
 ### archive/ Directory
 
@@ -163,6 +177,7 @@ Versioned backups are created by the `backup-html` skill (invokable via `/backup
 - **`setLang()` early-call crash**: `setLang` is called during language auto-detection before `currentPaper`, `renderText`, and `htmlToPlain` are declared. Any code added to `setLang` that uses these must guard with `typeof currentPaper !== 'undefined'` etc.
 - **`calcFontSizeIn` measures plain text**: quick_start content is rich HTML with `<span>` padding — HTML elements add extra width not captured by plain-text measurement. Keep quick_start step-1 lines short enough to fit at the target font size.
 - **Scroll restoration drift**: `focus()` on load causes the browser to save a non-zero scroll offset; on refresh it restores that offset, then focus scrolls more — accumulating upward drift. Fixed with `history.scrollRestoration = 'manual'` and `window.scrollTo(0,0)` at script start, plus `{ preventScroll: true }` on the load-time `focus()` call.
+- **Print dialog shows multiple pages**: `@media print` must reset `html, body` to `margin:0; padding:0; display:block; height:auto; gap:0` and explicitly hide every non-page element (`#side-panel`, `#measure-landscape`, `#measure-portrait`, overlays, status bars). `.no-print` alone is not sufficient — elements without that class still contribute to print layout height.
 - **Playwright won't catch scroll drift**: headless Chrome doesn't persist scroll state across navigations the way a real browser session does.
 - **CSS zoom vs transform**: only `zoom` shrinks the element's layout footprint. `transform: scale()` keeps the full layout size, causing overflow/clipping in the preview panel.
 
