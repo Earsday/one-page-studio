@@ -2292,6 +2292,8 @@
   function fitPageToPanel() {
     var panel = document.getElementById('preview-panel');
     if (!panel) return;
+    // Force reflow so offsetHeight values are fresh after DOM changes
+    void panel.offsetHeight;
     var statusEl = document.getElementById('preview-status');
     var statusH = (statusEl && statusEl.style.display !== 'none') ? (statusEl.offsetHeight + 12) : 0;
     var availW = panel.clientWidth - 40;
@@ -2301,6 +2303,8 @@
     var paperW = parseFloat(page.dataset.paperW) || (297 * 96 / 25.4);
     var paperH = parseFloat(page.dataset.paperH) || (210 * 96 / 25.4);
     var scale = Math.min(availW / paperW, availH / paperH);
+    // Leave a small safety margin so the page never exactly touches the edge
+    scale = scale * 0.98;
     page.style.width  = Math.floor(paperW * scale) + 'px';
     page.style.height = Math.floor(paperH * scale) + 'px';
   }
@@ -2645,6 +2649,8 @@
     document.getElementById('preview-status').style.display = 'flex';
     updateStatusBar();
     fitPageToPanel();
+    // Deferred second call in case status bar reflow wasn't complete
+    setTimeout(fitPageToPanel, 0);
   }
 
   var _distributeTimer = null;
