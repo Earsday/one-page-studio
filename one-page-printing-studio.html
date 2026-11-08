@@ -2707,7 +2707,7 @@
     else label = t.bg_none;
     if (hasWm && (hasBgImage || hasBgColor)) label += ' + ' + t.bg_watermark;
     else if (hasWm) label = t.bg_watermark;
-    document.getElementById('status-bg').textContent = label;
+    document.getElementById('status-bg').textContent = t.label_background + ': ' + label;
   }
 
   document.getElementById('bg-toggle').addEventListener('click', function () {
@@ -3129,10 +3129,11 @@
     var paperText = currentPaper.name;
     var orientation = document.getElementById('a4-page').className;
     var t = LANGS[currentLang];
-    document.getElementById('status-orientation').textContent = orientation === 'landscape' ? t.orientation_landscape : t.orientation_portrait;
-    document.getElementById('status-font').textContent  = (fontLabel ? fontLabel.textContent : '—');
-    document.getElementById('status-size').textContent  = sizeText;
-    document.getElementById('status-paper').textContent = paperText;
+    var orientVal = orientation === 'landscape' ? t.orientation_landscape : t.orientation_portrait;
+    document.getElementById('status-orientation').textContent = t.label_preview + ': ' + orientVal;
+    document.getElementById('status-font').textContent  = t.label_font + ': ' + (fontLabel ? fontLabel.textContent : '—');
+    document.getElementById('status-size').textContent  = t.label_size + ': ' + sizeText;
+    document.getElementById('status-paper').textContent = t.label_paper + ': ' + paperText;
     syncBgStatus();
   }
 
