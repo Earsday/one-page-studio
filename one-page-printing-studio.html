@@ -1296,7 +1296,7 @@
         </div>
         <div class="about-row">
           <span class="about-label" data-i18n="about_version_label"></span>
-          <span class="about-value">2026-11-09 04:37</span>
+          <span class="about-value">2026-11-09 12:00</span>
         </div>
         <div class="about-row">
           <span class="about-label" data-i18n="about_desc_label"></span>
@@ -3464,6 +3464,8 @@
     var params = new URLSearchParams(window.location.search);
     var text = params.get('text');
     if (text) {
+      // Strip any HTML tags — URL param is plain text only; prevents reflected XSS via innerHTML in renderText
+      text = text.replace(/<[^>]*>/g, '');
       document.getElementById('input-ui').style.display = 'none';
       document.getElementById('app-header').style.display = 'none';
       renderText(text);
