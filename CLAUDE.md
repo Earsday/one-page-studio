@@ -4,44 +4,66 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A single self-contained HTML file (`one-page-studio.html`) — no build tools, no dependencies, no server required. Open directly via `file://` in a browser.
+Two self-contained HTML files — no build tools, no dependencies, no server required. Open directly via `file://` in a browser.
+
+| File | Description |
+|------|-------------|
+| `one-page-printing-studio.html` | **Active v2** — split layout: slim header + left settings panel + live preview panel |
+| `one-page-studio.html` | Original v1 — single scrolling column layout |
+| `one-page-studio.min.html` | Minified distribution copy of v1 |
 
 ## Running / Testing
 
-Open the file in a browser:
-```
-open one-page-studio.html
-```
-
-Or test URL-param mode:
-```
-open "one-page-studio.html?text=HELLO"
+```bash
+open one-page-printing-studio.html       # v2 (active)
+open one-page-studio.html                # v1 (original)
+open "one-page-printing-studio.html?text=HELLO"  # URL-param mode
 ```
 
 Run regression tests (requires HTTP server for iframe access):
-```
+```bash
 python3 -m http.server 8900
 open http://localhost:8900/test-runner.html
-# Test specific version: http://localhost:8900/test-runner.html?target=one-page-studio.min.html
+open "http://localhost:8900/test-runner.html?target=one-page-printing-studio.html"
 ```
 
 There are no unit tests, no linter, no build step.
 
 ## Architecture
 
-Everything lives in `one-page-studio.html`: HTML structure, `<style>` block (CSS), and `<script>` block (JS).
+Everything lives in a single HTML file: HTML structure, `<style>` block (CSS), and `<script>` block (JS).
+
+### v2 Split Layout (`one-page-printing-studio.html`)
+
+```
+<body>                      flex column, 100vh, overflow:hidden
+  <header #app-header>      full-width dark bar; flex-shrink:0
+  <div #main-area>          flex row, flex:1, min-height:0
+    <div #left-panel>       340px fixed, overflow-y:auto, settings
+    <div #preview-panel>    flex:1, centres the scaled A4 page
+      <div #page-scale-wrapper>
+        <div #a4-page>      scaled via CSS zoom
+  <div #measure-landscape>  position:absolute, opacity:0 — font measurement
+  <div #measure-portrait>
+```
+
+**CSS zoom vs transform:** `#a4-page` is scaled with `zoom` (not `transform: scale()`). `zoom` shrinks the element's layout footprint; `transform` keeps the full layout size causing overflow/clipping. `fitPageToPanel()` sets `page.style.zoom = scale`.
+
+**Print:** `beforeprint` restores real mm pixel dimensions (`page.dataset.paperW/H`); `afterprint` re-applies zoom via `fitPageToPanel()`. Measure containers are hidden in `@media print`.
 
 ### Key JS Functions
 
 - `preprocessText(raw)` — splits on circled numbers `①②③...`, date patterns `/(?=\d+\.\d)/` and `/(?=\d+月\d+日)/`, and post-date CJK splits; returns `\n`-joined lines
-- `calcFontSizeIn(text, containerId)` — binary search (1–500px) using plain text; respects current `white-space` on measure containers (nowrap when Auto-wrap Lines is OFF)
+- `calcFontSizeIn(text, containerId)` — binary search (1–500px); rejects any size where a logical line exceeds container width in nowrap mode (prevents internal wrapping that height-only check misses)
 - `calcFontSizeForHtml(html, containerId)` — binary search for HTML content with `white-space:normal`; used by watermark size calculation
+- `countRenderedLines(plain, containerId, fontSize)` — measures actual wrapped line count by `scrollHeight / (fontSize * 1.2)`; used by auto-orientation logic
 - `renderText(raw, keepOrientation)` — preprocesses, calculates font size via `calcFontSizeIn`, picks orientation, renders; `keepOrientation` locks orientation (set by `_manualRotation` flag)
+- `fitPageToPanel()` — scales `#a4-page` via CSS `zoom` to fit `#page-scale-wrapper`; called after render, paper/orientation change, and window resize
 - `distributeLineSpacing()` — debounced (150ms); adjusts `#print-text` `line-height` to evenly fill page height when content is smaller than page
-- `applyPaperSize(w, h, name)` — resizes page div, updates measure containers, triggers font recalculation
+- `applyPaperSize(w, h, name)` — resizes page div, stores dimensions in `page.dataset.paperW/H`, updates measure containers, triggers font recalculation
 - `setOrientation(orientation)` — switches between landscape/portrait, updates page size and `@page` rule
 - `setFontSize(size)` — sets font size, triggers debounced `distributeLineSpacing`
-- `setLang(lang)` — walks DOM swapping `data-i18n` strings, calls `updatePreviewLabel()` and `buildWmFontSelect()`
+- `setLang(lang)` — walks DOM swapping `data-i18n` strings; re-renders Quick Start when input is empty; all additions must guard with `typeof currentPaper !== 'undefined'` (called early, before vars are declared)
 - `updateWatermark()` — renders watermark SVG using current style/outline/font/size/spacing/colour settings
 - `syncBgStatus()` — updates background status chip based on actual page background state
 - `buildWmFontSelect()` — populates watermark typeface dropdown; guarded against being called before `FONTS` is defined
@@ -67,11 +89,15 @@ Everything lives in `one-page-studio.html`: HTML structure, `<style>` block (CSS
 
 ### Layout Invariants
 
-- Page `<div>` is always sized to the selected paper dimensions in `px` (at 96 dpi)
 - Measure containers use `opacity:0` (not `visibility:hidden`) so `clientWidth`/`clientHeight` return real dimensions
+- Measure containers always stay at real mm dimensions — font size calculation accuracy depends on this
 - Watermark layer `z-index: 0`; text layer `z-index: 1`
 - Page background hardcoded `#ffffff` — never affected by theme
 - `#print-text` `line-height` is managed dynamically by `distributeLineSpacing`
+
+### Auto-Orientation Logic
+
+Compares rendered line counts in landscape vs portrait at their respective best font sizes. Prefers landscape if portrait adds extra line wrapping. Threshold: portrait chosen only if it doesn't wrap more lines AND its font size is ≥ 85% of landscape's.
 
 ### Print Button Behaviour
 
@@ -109,7 +135,7 @@ Rendered as inline SVG inside `#watermark` (position:absolute, inset:0, z-index:
 
 ### Quick Start Content
 
-Stored as pipe-free plain strings in `LANGS[lang].quick_start`. Uses `①②` characters as line separators — `preprocessText` splits on these. Joined with `<br>` at render time via the normal pipeline, not hardcoded.
+Stored as HTML strings in `LANGS[lang].quick_start`. Uses `①②` characters as line separators — `preprocessText` splits on these. Each language's step-1 text is sized to fit within A4 landscape width at the target font size — do not lengthen without measuring.
 
 ### i18n
 
@@ -121,26 +147,35 @@ CSS custom properties on `<html data-theme="...">`. Six themes: Studio (default)
 
 ### Version
 
-The About dialog shows a version timestamp (`YYYY-MM-DD HH:MM`) in a `<span class="about-value">` immediately after the `about_version_label` span. A PostToolUse hook in `.claude/settings.local.json` auto-updates this timestamp whenever the HTML file is edited.
+The About dialog shows a version timestamp (`YYYY-MM-DD HH:MM`) in a `<span class="about-value">` immediately after the `about_version_label` span. A PostToolUse hook in `.claude/settings.local.json` auto-updates this timestamp whenever `one-page-studio.html` is edited. **For `one-page-printing-studio.html`, update the timestamp manually.**
 
 ### Minified Version
 
-`one-page-studio.min.html` is a distribution copy. It is **not** auto-generated — update it manually when releasing. The version timestamp PostToolUse hook only fires on `one-page-studio.html`; update the min version separately if needed.
+`one-page-studio.min.html` is a distribution copy of v1. It is **not** auto-generated — update it manually when releasing.
 
 ### archive/ Directory
 
 Versioned backups are created by the `backup-html` skill (invokable via `/backup-html`). Files are named `one-page-studio.YYYY-MM-DD-HH-MM.html`. Do not edit archive files.
 
+## Known Pitfalls
+
+- **`setLang()` early-call crash**: `setLang` is called during language auto-detection before `currentPaper`, `renderText`, and `htmlToPlain` are declared. Any code added to `setLang` that uses these must guard with `typeof currentPaper !== 'undefined'` etc.
+- **`calcFontSizeIn` measures plain text**: quick_start content is rich HTML with `<span>` padding — HTML elements add extra width not captured by plain-text measurement. Keep quick_start step-1 lines short enough to fit at the target font size.
+- **Scroll restoration drift**: `focus()` on load causes the browser to save a non-zero scroll offset; on refresh it restores that offset, then focus scrolls more — accumulating upward drift. Fixed with `history.scrollRestoration = 'manual'` and `window.scrollTo(0,0)` at script start, plus `{ preventScroll: true }` on the load-time `focus()` call.
+- **Playwright won't catch scroll drift**: headless Chrome doesn't persist scroll state across navigations the way a real browser session does.
+- **CSS zoom vs transform**: only `zoom` shrinks the element's layout footprint. `transform: scale()` keeps the full layout size, causing overflow/clipping in the preview panel.
+
 ## Verification Checklist
 
-After any change, manually verify:
-1. `open one-page-studio.html` — Quick Start renders, text field focused, live preview works
-2. `open "one-page-studio.html?text=URGENT"` — auto-renders, no input UI
+After any change to `one-page-printing-studio.html`, manually verify:
+1. `open one-page-printing-studio.html` — Quick Start renders, text field focused, live preview works, no scroll drift on repeated refresh
+2. `open "one-page-printing-studio.html?text=URGENT"` — auto-renders, no input UI
 3. CJK split: `通知7月25日()7月26日()休息` → 4 lines; `某某某 医生1.2（周三）1.3（周四）门诊停诊` → 4 lines
 4. Auto-wrap Lines OFF → content renders as single unwrapped line, font recalculates
 5. Rotate → orientation switches, font recalculates; subsequent typing preserves orientation
-6. Background: Colour + Watermark simultaneously; Reset clears both
-7. Switch language → all UI strings update
+6. Background: Colour + Watermark simultaneously; Reset clears both; watermark controls fit within left panel
+7. Switch language → all UI strings update, Quick Start re-renders in new language
 8. Switch theme → full UI recolours, page stays white
-9. Print → correct paper size and orientation, watermark prints, no UI controls visible
-10. Run test suite at `http://localhost:8900/test-runner.html` — all tests pass
+9. Print → correct paper size and orientation, watermark prints, no UI controls visible, single page
+10. Resize browser window → A4 page rescales to fit preview panel
+11. Run test suite at `http://localhost:8900/test-runner.html?target=one-page-printing-studio.html` — all tests pass
