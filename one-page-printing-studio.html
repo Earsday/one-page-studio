@@ -2252,7 +2252,7 @@
         item.style.display = visible ? '' : 'none';
       });
     }
-    updateStatusBar();
+    if (typeof updateStatusBar === 'function' && typeof currentPaper !== 'undefined') updateStatusBar();
   }
 
   document.querySelectorAll('.lang-btn').forEach(function (btn) {
@@ -2301,11 +2301,16 @@
     var availH = panel.clientHeight - pad * 2 - statusH;
     if (availW < 50 || availH < 50) return;
     var page = document.getElementById('a4-page');
-    var paperW = parseFloat(page.dataset.paperW) || (297 * 96 / 25.4);
-    var paperH = parseFloat(page.dataset.paperH) || (210 * 96 / 25.4);
-    var scale = Math.min(availW / paperW, availH / paperH) * 0.97;
-    page.style.width  = Math.floor(paperW * scale) + 'px';
-    page.style.height = Math.floor(paperH * scale) + 'px';
+    // Use real offsetWidth/Height (mm-based logical dimensions)
+    var pageW = page.offsetWidth;
+    var pageH = page.offsetHeight;
+    if (pageW < 10 || pageH < 10) return;
+    var scale = Math.min(availW / pageW, availH / pageH) * 0.97;
+    // Apply scale via transform; adjust margins so layout footprint matches scaled size
+    page.style.transform = 'scale(' + scale + ')';
+    page.style.transformOrigin = 'top center';
+    page.style.marginTop = '0';
+    page.style.marginBottom = Math.floor(pageH * (scale - 1)) + 'px';
   }
 
   function applyPaperSize(w, h, name) {
@@ -3414,21 +3419,22 @@
   setTimeout(function () { _inputReady = true; }, 300);
 
   var _fitPanelTimer = null;
-  // Use ResizeObserver for reliable panel-size-aware scaling
   (function() {
     var panel = document.getElementById('preview-panel');
-    if (window.ResizeObserver && panel) {
-      new ResizeObserver(function() {
-        clearTimeout(_fitPanelTimer);
-        _fitPanelTimer = setTimeout(fitPageToPanel, 50);
-      }).observe(panel);
-    } else {
-      // Fallback for browsers without ResizeObserver
-      window.addEventListener('resize', function() {
-        clearTimeout(_fitPanelTimer);
-        _fitPanelTimer = setTimeout(fitPageToPanel, 100);
-      });
+    function debouncedFit() {
+      clearTimeout(_fitPanelTimer);
+      _fitPanelTimer = setTimeout(fitPageToPanel, 50);
     }
+    // ResizeObserver handles window resize and initial layout
+    if (window.ResizeObserver && panel) {
+      new ResizeObserver(debouncedFit).observe(panel);
+    }
+    // Belt-and-suspenders: also fire on window resize and after load
+    window.addEventListener('resize', debouncedFit);
+    // Multiple fallback timeouts to catch any async layout delay
+    setTimeout(fitPageToPanel, 0);
+    setTimeout(fitPageToPanel, 100);
+    setTimeout(fitPageToPanel, 500);
   })();
   </script>
 </body>
