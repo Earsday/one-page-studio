@@ -244,6 +244,22 @@ test('Text Input', 'Brackets stay with date pattern (no extra split)', async (fr
   return true;
 });
 
+test('Text Input', 'Two-digit month (11月) splits as single token, not split mid-number', async (fr, win, doc) => {
+  // Regression: '某某某医生 11月11日（周三）全天停诊' was wrongly split into
+  // '某某某医生 ' / '1' / '1月11日（周三）' / '全天停诊' because the date lookahead
+  // matched at both digit positions within '11月'. Fix: (?<!\d) lookbehind.
+  const ti = q(doc, '#text-input');
+  setVal(ti, '某某某医生 11月11日（周三）全天停诊');
+  await sleep(400);
+  const html = q(doc, '#print-text').innerHTML;
+  const breaks = (html.match(/<br>/g) || []).length;
+  // Expected 3 lines: '某某某医生' / '11月11日（周三）' / '全天停诊' → 2 <br> tags
+  if (breaks !== 2) throw `Expected 2 <br> tags (3 lines), got ${breaks}. HTML: ${html}`;
+  // Ensure '11月' is intact (not split into '1' + '1月')
+  if (!html.includes('11月')) throw `'11月' was split — got: ${html}`;
+  return true;
+});
+
 test('Text Input', 'Orientation auto-selects on new text (not locked to Quick Start)', async (fr, win, doc) => {
   // Quick Start renders in landscape; typing tall content should switch to portrait
   const ti = q(doc, '#text-input');

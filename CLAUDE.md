@@ -45,6 +45,11 @@ Everything lives in `one-page-studio.html`: HTML structure, `<style>` block (CSS
 - `updateWatermark()` — renders watermark SVG using current style/outline/font/size/spacing/colour settings
 - `syncBgStatus()` — updates background status chip based on actual page background state
 - `buildWmFontSelect()` — populates watermark typeface dropdown; guarded against being called before `FONTS` is defined
+- `htmlToPlain(html)` — converts editor HTML to plain text with `\n` line separators; handles `<br>`, `<div>`, `<p>` tags; exposed as `window.htmlToPlain` for test access
+- `normaliseEditorHtml(html)` — converts `<div>`/`<p>` block structure to `<br>` tags before rendering; collapses double `<br>` to single
+- `updateStatusBar()` — updates all 5 status chips (orientation, BG, font, size, paper) after render
+- `makeToggle(btnId, panelId)` — wires a button to toggle a panel's visibility with active-state sync; also wires matching status chip click if a `statusId` is found
+- `savedSelection()` / `restoreSelection(range)` — save and restore contenteditable cursor position around toolbar `execCommand` calls (prevents focus loss)
 
 ### Two Render Modes
 
@@ -117,6 +122,14 @@ CSS custom properties on `<html data-theme="...">`. Six themes: Studio (default)
 ### Version
 
 The About dialog shows a version timestamp (`YYYY-MM-DD HH:MM`) in a `<span class="about-value">` immediately after the `about_version_label` span. A PostToolUse hook in `.claude/settings.local.json` auto-updates this timestamp whenever the HTML file is edited.
+
+### Minified Version
+
+`one-page-studio.min.html` is a distribution copy. It is **not** auto-generated — update it manually when releasing. The version timestamp PostToolUse hook only fires on `one-page-studio.html`; update the min version separately if needed.
+
+### archive/ Directory
+
+Versioned backups are created by the `backup-html` skill (invokable via `/backup-html`). Files are named `one-page-studio.YYYY-MM-DD-HH-MM.html`. Do not edit archive files.
 
 ## Verification Checklist
 

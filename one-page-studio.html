@@ -1214,7 +1214,7 @@
         </div>
         <div class="about-row">
           <span class="about-label" data-i18n="about_version_label"></span>
-          <span class="about-value">2026-07-20 17:12</span>
+          <span class="about-value">2026-11-07 00:35</span>
         </div>
         <div class="about-row">
           <span class="about-label" data-i18n="about_desc_label"></span>
@@ -2418,7 +2418,7 @@
     var lines = raw.split(/(?=[①②③④⑤⑥⑦⑧⑨⑩])/);
     var result = [];
     lines.forEach(function(line) {
-      var parts = line.split(/(?=\d+\.\d)|(?=\d+月\d+日)/);
+      var parts = line.split(/(?=\d+\.\d)|(?<!\d)(?=\d+月\d+日)/);
       parts.forEach(function(s) {
         var sub = s.split(/(?<=[）)])(?=[一-鿿])(?![(（])|(?<=日)(?=[一-鿿])(?![(（）)「」【】『』〔〕])/);
         sub.forEach(function(t) { if (t.trim()) result.push(t); });
