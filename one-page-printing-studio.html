@@ -2292,19 +2292,18 @@
   function fitPageToPanel() {
     var panel = document.getElementById('preview-panel');
     if (!panel) return;
-    // Force reflow so offsetHeight values are fresh after DOM changes
-    void panel.offsetHeight;
+    void panel.offsetHeight; // force reflow
     var statusEl = document.getElementById('preview-status');
     var statusH = (statusEl && statusEl.style.display !== 'none') ? (statusEl.offsetHeight + 12) : 0;
-    var availW = panel.clientWidth - 40;
-    var availH = panel.clientHeight - 40 - statusH;
+    var pad = 20; // padding on each side
+    var availW = panel.clientWidth - pad * 2;
+    var availH = panel.clientHeight - pad * 2 - statusH;
     if (availW <= 0 || availH <= 0) return;
     var page = document.getElementById('a4-page');
     var paperW = parseFloat(page.dataset.paperW) || (297 * 96 / 25.4);
     var paperH = parseFloat(page.dataset.paperH) || (210 * 96 / 25.4);
     var scale = Math.min(availW / paperW, availH / paperH);
-    // Leave a small safety margin so the page never exactly touches the edge
-    scale = scale * 0.98;
+    scale = scale * 0.97;
     page.style.width  = Math.floor(paperW * scale) + 'px';
     page.style.height = Math.floor(paperH * scale) + 'px';
   }
@@ -2649,8 +2648,7 @@
     document.getElementById('preview-status').style.display = 'flex';
     updateStatusBar();
     fitPageToPanel();
-    // Deferred second call in case status bar reflow wasn't complete
-    setTimeout(fitPageToPanel, 0);
+    setTimeout(fitPageToPanel, 50);
   }
 
   var _distributeTimer = null;
@@ -2686,6 +2684,7 @@
     if (pt.scrollHeight > pageH * 0.98) {
       pt.style.lineHeight = '';
     }
+    fitPageToPanel();
   }
 
   function currentFontSize() {
