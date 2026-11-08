@@ -3481,7 +3481,7 @@
 
   // ── Focus textarea on load (input UI mode only) ───────────────────────────
   if (!new URLSearchParams(window.location.search).get('text')) {
-    document.getElementById('text-input').focus();
+    document.getElementById('text-input').focus({ preventScroll: true });
   }
   setTimeout(function () { _inputReady = true; }, 300);
 
