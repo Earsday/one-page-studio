@@ -1506,6 +1506,9 @@
   <div id="measure-portrait"  style="position:absolute;opacity:0;pointer-events:none;width:190mm;height:277mm;overflow:hidden;font-weight:normal;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;line-height:1.2;text-align:center;"></div>
 
   <script>
+  // Prevent browser from restoring scroll position on refresh
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
   // ── About ─────────────────────────────────────────────────────────────────
   document.getElementById('about-btn').addEventListener('click', function () {
     document.getElementById('about-overlay').classList.add('open');
