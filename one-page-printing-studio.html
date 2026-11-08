@@ -1726,7 +1726,7 @@
   var LANGS = {
     en: {
       label_input:    'Notification text',
-      quick_start:    '<b><u>QUICK START</u></b> ① Type your text above ② Click <span style="background:#000;color:#fff;padding:0 4px;">Print</span>',
+      quick_start:    '<b><u>QUICK START</u></b> ① Type your text ② Click <span style="background:#000;color:#fff;padding:0 4px;">Print</span>',
       label_preview:  'Preview',      orientation_landscape: 'Landscape', orientation_portrait: 'Portrait',
       label_background: 'Background',
       label_font:     'Typeface',
@@ -1828,7 +1828,7 @@
     zh_CN: {
       label_input:    '通知文字',
       label_preview:  '预览',       orientation_landscape: '横向', orientation_portrait: '纵向',
-      quick_start:    '<b><u>快速开始</u></b> ① 在上方输入通知文字 ② 点击<span style="background:#000;color:#fff;padding:0 4px;">打印</span>',
+      quick_start:    '<b><u>快速开始</u></b> ① 输入通知文字 ② 点击<span style="background:#000;color:#fff;padding:0 4px;">打印</span>',
       label_background: '背景设置',
       label_font:     '字体',
       tool_font:      'Aa 字体',   tool_font_title:  '显示/隐藏字体选择',
@@ -1928,7 +1928,7 @@
     },
     zh_TW: {
       label_input:    '通知文字',
-      quick_start:    '<b><u>快速開始</u></b> ① 在上方輸入通知文字 ② 點擊<span style="background:#000;color:#fff;padding:0 4px;">列印</span>',
+      quick_start:    '<b><u>快速開始</u></b> ① 輸入通知文字 ② 點擊<span style="background:#000;color:#fff;padding:0 4px;">列印</span>',
       label_preview:  '預覽',       orientation_landscape: '橫向', orientation_portrait: '縱向',
       label_background: '背景設定',
       label_font:     '字型',
@@ -2029,7 +2029,7 @@
     },
     ja: {
       label_input:    '通知テキスト',
-      quick_start:    '<b><u>クイックスタート</u></b> ① テキストを入力 ② <span style="background:#000;color:#fff;padding:0 4px;">印刷</span>をクリック',
+      quick_start:    '<b><u>クイックスタート</u></b> ① テキストを入力 ② <span style="background:#000;color:#fff;padding:0 2px;">印刷</span>をクリック',
       label_preview:  'プレビュー',   orientation_landscape: '横向き', orientation_portrait: '縦向き',
       label_background: '背景',
       label_font:     '書体',
@@ -2130,7 +2130,7 @@
     },
     ko: {
       label_input:    '알림 텍스트',
-      quick_start:    '<b><u>빠른 시작</u></b> ① 위에 텍스트 입력 ② <span style="background:#000;color:#fff;padding:0 4px;">인쇄</span> 클릭',
+      quick_start:    '<b><u>빠른 시작</u></b> ① 텍스트 입력 ② <span style="background:#000;color:#fff;padding:0 4px;">인쇄</span> 클릭',
       label_preview:  '미리보기',     orientation_landscape: '가로', orientation_portrait: '세로',
       label_background: '배경',
       label_font:     '서체',
@@ -2566,27 +2566,22 @@
     var el = document.getElementById(containerId);
     var containerW = el.clientWidth;
     var containerH = el.clientHeight;
-    el.textContent = text;
+    var lines = text.split('\n');
+    var prevWs = el.style.whiteSpace;
     var lo = 1, hi = 500, best = lo;
     while (lo <= hi) {
       var mid = Math.floor((lo + hi) / 2);
       el.style.fontSize = mid + 'px';
-      if (el.scrollHeight <= containerH && el.scrollWidth <= containerW) { best = mid; lo = mid + 1; }
-      else { hi = mid - 1; }
-    }
-    // Step down if any logical line is wider than the container at best size
-    // (binary search finds height-fit but doesn't catch lines that wrap internally)
-    if (best > 1) {
-      var lines = text.split('\n');
-      var prevWs = el.style.whiteSpace;
+      el.textContent = text;
+      if (el.scrollHeight > containerH || el.scrollWidth > containerW) { hi = mid - 1; continue; }
+      // Also reject if any logical line is wider than container in nowrap mode
       el.style.whiteSpace = 'nowrap';
-      el.style.fontSize = best + 'px';
-      var wraps = lines.some(function(line) {
+      var lineOver = lines.some(function(line) {
         el.textContent = line.trim();
         return el.scrollWidth > containerW;
       });
       el.style.whiteSpace = prevWs;
-      if (wraps) best = best - 1;
+      if (lineOver) { hi = mid - 1; } else { best = mid; lo = mid + 1; }
     }
     el.textContent = '';
     return best;
