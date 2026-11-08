@@ -2029,7 +2029,7 @@
     },
     ja: {
       label_input:    '通知テキスト',
-      quick_start:    '<b><u>クイックスタート</u></b> ① 上にテキストを入力 ② <span style="background:#000;color:#fff;padding:0 4px;">印刷</span>をクリック',
+      quick_start:    '<b><u>クイックスタート</u></b> ① テキストを入力 ② <span style="background:#000;color:#fff;padding:0 4px;">印刷</span>をクリック',
       label_preview:  'プレビュー',   orientation_landscape: '横向き', orientation_portrait: '縦向き',
       label_background: '背景',
       label_font:     '書体',
@@ -2564,13 +2564,29 @@
 
   function calcFontSizeIn(text, containerId) {
     var el = document.getElementById(containerId);
+    var containerW = el.clientWidth;
+    var containerH = el.clientHeight;
     el.textContent = text;
     var lo = 1, hi = 500, best = lo;
     while (lo <= hi) {
       var mid = Math.floor((lo + hi) / 2);
       el.style.fontSize = mid + 'px';
-      if (el.scrollHeight <= el.clientHeight && el.scrollWidth <= el.clientWidth) { best = mid; lo = mid + 1; }
+      if (el.scrollHeight <= containerH && el.scrollWidth <= containerW) { best = mid; lo = mid + 1; }
       else { hi = mid - 1; }
+    }
+    // Step down if any logical line is wider than the container at best size
+    // (binary search finds height-fit but doesn't catch lines that wrap internally)
+    if (best > 1) {
+      var lines = text.split('\n');
+      var prevWs = el.style.whiteSpace;
+      el.style.whiteSpace = 'nowrap';
+      el.style.fontSize = best + 'px';
+      var wraps = lines.some(function(line) {
+        el.textContent = line.trim();
+        return el.scrollWidth > containerW;
+      });
+      el.style.whiteSpace = prevWs;
+      if (wraps) best = best - 1;
     }
     el.textContent = '';
     return best;
