@@ -1184,10 +1184,13 @@
 
     /* ── Print ── */
     @media print {
-      body { background: none; padding: 0; background-image: none; }
+      body { background: none; padding: 0; background-image: none; height: auto !important; overflow: visible !important; }
       #input-ui { display: none !important; }
       #lang-switcher { display: none !important; }
       #app-header { display: none !important; }
+      #left-panel { display: none !important; }
+      #preview-panel { padding: 0 !important; background: none !important; }
+      #main-area { display: block !important; }
       #print-text, #print-text * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -1322,7 +1325,7 @@
   </div>
 
   <div id="main-area">
-  <div id="left-panel">
+  <div id="left-panel" class="no-print">
   <div id="input-ui">
     <div id="input-label" data-i18n="label_input"></div>
     <div id="rich-toolbar">
