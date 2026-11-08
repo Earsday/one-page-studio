@@ -9,6 +9,7 @@ Two self-contained HTML files — no build tools, no dependencies, no server req
 | File | Description |
 |------|-------------|
 | `one-page-printing-studio.html` | **Active v2** — split layout: slim header + left settings panel + live preview panel |
+| `one-page-printing-studio.min.html` | Minified distribution copy of v2 |
 | `one-page-studio.html` | Original v1 — single scrolling column layout |
 | `one-page-studio.min.html` | Minified distribution copy of v1 |
 
