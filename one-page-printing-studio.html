@@ -2299,7 +2299,7 @@
     var pad = 20;
     var availW = panel.clientWidth - pad * 2;
     var availH = panel.clientHeight - pad * 2 - statusH;
-    if (availW < 50 || availH < 50) return; // panel not yet laid out
+    if (availW < 50 || availH < 50) return;
     var page = document.getElementById('a4-page');
     var paperW = parseFloat(page.dataset.paperW) || (297 * 96 / 25.4);
     var paperH = parseFloat(page.dataset.paperH) || (210 * 96 / 25.4);
@@ -2684,7 +2684,6 @@
     if (pt.scrollHeight > pageH * 0.98) {
       pt.style.lineHeight = '';
     }
-    fitPageToPanel();
   }
 
   function currentFontSize() {
