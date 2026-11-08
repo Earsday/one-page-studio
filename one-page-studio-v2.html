@@ -347,6 +347,7 @@
     /* ── Action row ── */
     #action-row {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       align-items: center;
     }
@@ -2644,6 +2645,7 @@
     document.getElementById('toggle-paper-size-ctrl').style.display = '';
     document.getElementById('preview-status').style.display = 'flex';
     updateStatusBar();
+    fitPageToPanel();
   }
 
   var _distributeTimer = null;
