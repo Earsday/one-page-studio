@@ -2610,6 +2610,20 @@
     fitPageToPanel();
   }
 
+  // Count how many rendered lines plain text produces in a measure container at a given font size
+  function countRenderedLines(plain, containerId, fontSize) {
+    var el = document.getElementById(containerId);
+    var prev = el.innerHTML;
+    var prevFs = el.style.fontSize;
+    el.style.fontSize = fontSize + 'px';
+    el.innerHTML = plain.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    var lineH = fontSize * 1.2;
+    var lines = Math.round(el.scrollHeight / lineH);
+    el.innerHTML = prev;
+    el.style.fontSize = prevFs;
+    return Math.max(lines, plain.split('\n').length);
+  }
+
   function renderText(raw, keepOrientation) {
     var isHtml = /<[a-z][\s\S]*>/i.test(raw);
     var plain, displayHtml;
@@ -2660,10 +2674,23 @@
     if (!plain) return;
     var sizeLandscape = calcFontSizeIn(plain, 'measure-landscape');
     var sizePortrait  = calcFontSizeIn(plain, 'measure-portrait');
-    // For multi-line content, bias towards portrait when sizes are close (within 10%)
     var lineCount = plain.split('\n').length;
-    var portraitThreshold = lineCount > 1 ? sizeLandscape * 0.9 : sizeLandscape;
-    var orientation = keepOrientation || (sizePortrait > portraitThreshold ? 'portrait' : 'landscape');
+    var orientation;
+    if (keepOrientation) {
+      orientation = keepOrientation;
+    } else if (lineCount <= 1) {
+      // single line: portrait only if it fits as well as landscape
+      orientation = sizePortrait >= sizeLandscape ? 'portrait' : 'landscape';
+    } else {
+      // multi-line: measure actual wrapped line count in each orientation
+      // portrait wraps lines into more sub-lines when text is wide → prefer landscape
+      var wrappedL = countRenderedLines(plain, 'measure-landscape', sizeLandscape);
+      var wrappedP = countRenderedLines(plain, 'measure-portrait',  sizePortrait);
+      // prefer portrait only if it doesn't add extra wrapping AND fits nearly as well
+      var noExtraWrap = wrappedP <= wrappedL;
+      var fitsWell    = sizePortrait >= sizeLandscape * 0.85;
+      orientation = (noExtraWrap && fitsWell) ? 'portrait' : 'landscape';
+    }
     setOrientation(orientation);
     var pt = document.getElementById('print-text');
     clearTimeout(_distributeTimer); // cancel any pending stale distribute call
