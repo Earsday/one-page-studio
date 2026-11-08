@@ -882,6 +882,38 @@ test('Layout', 'Orientation chip present in status bar', async (fr, win, doc) =>
   return !!q(doc, '#status-orientation');
 });
 
+// ── Group 12: Layout v2 (split layout) ────────────────────────────────────────
+test('Layout v2', 'main-area has left-panel and preview-panel', async (fr, win, doc) => {
+  const mainArea = q(doc, '#main-area');
+  if (!mainArea) return 'skip';
+  return !!q(doc, '#left-panel') && !!q(doc, '#preview-panel');
+});
+
+test('Layout v2', 'a4-page is inside preview-panel', async (fr, win, doc) => {
+  const previewPanel = q(doc, '#preview-panel');
+  if (!previewPanel) return 'skip';
+  return !!previewPanel.querySelector('#a4-page');
+});
+
+test('Layout v2', 'input-ui is inside left-panel', async (fr, win, doc) => {
+  const leftPanel = q(doc, '#left-panel');
+  if (!leftPanel) return 'skip';
+  return !!leftPanel.querySelector('#input-ui');
+});
+
+test('Layout v2', 'no scroll needed — a4-page fits within preview-panel', async (fr, win, doc) => {
+  const previewPanel = q(doc, '#preview-panel');
+  if (!previewPanel) return 'skip';
+  setVal(q(doc, '#text-input'), 'Test');
+  await sleep(500);
+  const page = q(doc, '#a4-page');
+  if (page.offsetHeight > previewPanel.clientHeight + 2)
+    throw `Page ${page.offsetHeight}px overflows panel ${previewPanel.clientHeight}px`;
+  if (page.offsetWidth > previewPanel.clientWidth + 2)
+    throw `Page ${page.offsetWidth}px overflows panel ${previewPanel.clientWidth}px`;
+  return true;
+});
+
 // ── Runner ────────────────────────────────────────────────────────────────────
 let running = false;
 let stopFlag = false;
