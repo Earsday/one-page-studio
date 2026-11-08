@@ -133,13 +133,24 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       background: var(--linen);
       background-image: radial-gradient(circle at 1px 1px, var(--dot-color) 1px, transparent 0);
       background-size: 24px 24px;
       overflow: hidden;
       padding: 20px;
       gap: 12px;
+      position: relative;
+    }
+
+    #page-scale-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 0;
+      overflow: hidden;
     }
 
     @media (max-width: 900px) {
@@ -1191,6 +1202,7 @@
       #left-panel { display: none !important; }
       #preview-panel { padding: 0 !important; background: none !important; }
       #main-area { display: block !important; }
+      #page-scale-wrapper { display: block !important; width: 100% !important; height: auto !important; }
       #print-text, #print-text * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -1201,6 +1213,7 @@
         height: 100%;
         page-break-after: avoid;
         background-image: none !important;
+        transform: none !important;
       }
       .no-print { display: none !important; }
     }
@@ -1471,10 +1484,12 @@
     <button class="status-chip" id="status-paper" data-toggle="toggle-paper-size-ctrl" title=""></button>
   </div>
 
+  <div id="page-scale-wrapper">
   <div id="a4-page" class="landscape">
     <div id="watermark" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;"></div>
     <div id="print-text"></div>
   </div>
+  </div><!-- /#page-scale-wrapper -->
   </div><!-- /#preview-panel -->
   </div><!-- /#main-area -->
 
@@ -2253,6 +2268,12 @@
       });
     }
     if (typeof updateStatusBar === 'function' && typeof currentPaper !== 'undefined') updateStatusBar();
+    // Re-render Quick Start in new language when input is empty
+    var ti = document.getElementById('text-input');
+    if (ti && typeof renderText === 'function' && typeof htmlToPlain === 'function' && typeof currentPaper !== 'undefined') {
+      var plain = htmlToPlain(ti.innerHTML).trim();
+      if (!plain) { _lastInputRaw = ''; renderText(LANGS[lang].quick_start); }
+    }
   }
 
   document.querySelectorAll('.lang-btn').forEach(function (btn) {
@@ -2291,26 +2312,21 @@
   var currentPaper = { w: 297, h: 210, name: 'A4' };
 
   function fitPageToPanel() {
-    var panel = document.getElementById('preview-panel');
-    if (!panel) return;
-    void panel.offsetHeight; // force reflow
-    var statusEl = document.getElementById('preview-status');
-    var statusH = (statusEl && statusEl.style.display !== 'none') ? (statusEl.offsetHeight + 12) : 0;
-    var pad = 20;
-    var availW = panel.clientWidth - pad * 2;
-    var availH = panel.clientHeight - pad * 2 - statusH;
+    var wrapper = document.getElementById('page-scale-wrapper');
+    if (!wrapper) return;
+    void wrapper.offsetHeight; // force reflow
+    var availW = wrapper.clientWidth;
+    var availH = wrapper.clientHeight;
     if (availW < 50 || availH < 50) return;
     var page = document.getElementById('a4-page');
-    // Use real offsetWidth/Height (mm-based logical dimensions)
     var pageW = page.offsetWidth;
     var pageH = page.offsetHeight;
     if (pageW < 10 || pageH < 10) return;
     var scale = Math.min(availW / pageW, availH / pageH) * 0.97;
-    // Apply scale via transform; adjust margins so layout footprint matches scaled size
     page.style.transform = 'scale(' + scale + ')';
-    page.style.transformOrigin = 'top center';
+    page.style.transformOrigin = 'center center';
     page.style.marginTop = '0';
-    page.style.marginBottom = Math.floor(pageH * (scale - 1)) + 'px';
+    page.style.marginBottom = '0';
   }
 
   function applyPaperSize(w, h, name) {
@@ -3420,14 +3436,14 @@
 
   var _fitPanelTimer = null;
   (function() {
-    var panel = document.getElementById('preview-panel');
+    var wrapper = document.getElementById('page-scale-wrapper');
     function debouncedFit() {
       clearTimeout(_fitPanelTimer);
       _fitPanelTimer = setTimeout(fitPageToPanel, 50);
     }
     // ResizeObserver handles window resize and initial layout
-    if (window.ResizeObserver && panel) {
-      new ResizeObserver(debouncedFit).observe(panel);
+    if (window.ResizeObserver && wrapper) {
+      new ResizeObserver(debouncedFit).observe(wrapper);
     }
     // Belt-and-suspenders: also fire on window resize and after load
     window.addEventListener('resize', debouncedFit);
