@@ -145,13 +145,12 @@
 
     #page-scale-wrapper {
       flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: relative;
       width: 100%;
       min-height: 0;
       overflow: hidden;
     }
+
 
     @media (max-width: 900px) {
       body { height: auto; overflow: auto; }
@@ -2320,14 +2319,25 @@
     var availH = wrapper.clientHeight;
     if (availW < 50 || availH < 50) return;
     var page = document.getElementById('a4-page');
+    // Temporarily reset to static to measure true mm dimensions
+    page.style.position = 'static';
+    page.style.transform = '';
+    void page.offsetWidth; // force reflow to get true mm size
     var pageW = page.offsetWidth;
     var pageH = page.offsetHeight;
-    if (pageW < 10 || pageH < 10) return;
+    if (pageW < 10 || pageH < 10) { page.style.position = 'absolute'; return; }
     var scale = Math.min(availW / pageW, availH / pageH) * 0.97;
+    var scaledW = Math.floor(pageW * scale);
+    var scaledH = Math.floor(pageH * scale);
+    var topOffset = Math.max(0, Math.floor((availH - scaledH) / 2));
+    var leftOffset = Math.floor((availW - scaledW) / 2);
+    page.style.position = 'absolute';
     page.style.transform = 'scale(' + scale + ')';
-    page.style.transformOrigin = 'center center';
-    page.style.marginTop = '0';
-    page.style.marginBottom = '0';
+    page.style.transformOrigin = 'top left';
+    page.style.top = topOffset + 'px';
+    page.style.left = leftOffset + 'px';
+    page.style.marginTop = '';
+    page.style.marginBottom = '';
   }
 
   function applyPaperSize(w, h, name) {
