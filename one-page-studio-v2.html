@@ -2286,6 +2286,22 @@
   // ── Paper size ────────────────────────────────────────────────────────────
   var currentPaper = { w: 297, h: 210, name: 'A4' };
 
+  function fitPageToPanel() {
+    var panel = document.getElementById('preview-panel');
+    if (!panel) return;
+    var statusEl = document.getElementById('preview-status');
+    var statusH = (statusEl && statusEl.style.display !== 'none') ? (statusEl.offsetHeight + 12) : 0;
+    var availW = panel.clientWidth - 40;
+    var availH = panel.clientHeight - 40 - statusH;
+    if (availW <= 0 || availH <= 0) return;
+    var page = document.getElementById('a4-page');
+    var paperW = parseFloat(page.dataset.paperW) || (297 * 96 / 25.4);
+    var paperH = parseFloat(page.dataset.paperH) || (210 * 96 / 25.4);
+    var scale = Math.min(availW / paperW, availH / paperH);
+    page.style.width  = Math.floor(paperW * scale) + 'px';
+    page.style.height = Math.floor(paperH * scale) + 'px';
+  }
+
   function applyPaperSize(w, h, name) {
     currentPaper = { w: w, h: h, name: name };
     var orientation = document.getElementById('a4-page').className;
@@ -2295,6 +2311,8 @@
     var page = document.getElementById('a4-page');
     page.style.width  = pageW + 'mm';
     page.style.height = pageH + 'mm';
+    page.dataset.paperW = Math.round(pageW * 96 / 25.4);  // store logical px width
+    page.dataset.paperH = Math.round(pageH * 96 / 25.4); // store logical px height
     // update measure containers (subtract 2×10mm padding)
     var mW = pageW - 20, mH = pageH - 20;
     document.getElementById('measure-landscape').style.width  = (w - 20) + 'mm';
@@ -2312,6 +2330,7 @@
     }
     updatePreviewLabel();
     if (typeof updateStatusBar === 'function') updateStatusBar();
+    fitPageToPanel();
   }
 
   document.querySelectorAll('.paper-btn').forEach(function (btn) {
@@ -2551,7 +2570,10 @@
     page.className = orientation;
     page.style.width  = pageW + 'mm';
     page.style.height = pageH + 'mm';
+    page.dataset.paperW = Math.round(pageW * 96 / 25.4);
+    page.dataset.paperH = Math.round(pageH * 96 / 25.4);
     updatePreviewLabel();
+    fitPageToPanel();
   }
 
   function renderText(raw, keepOrientation) {
@@ -3381,6 +3403,13 @@
     document.getElementById('text-input').focus();
   }
   setTimeout(function () { _inputReady = true; }, 300);
+
+  var _fitPanelTimer = null;
+  window.addEventListener('resize', function() {
+    clearTimeout(_fitPanelTimer);
+    _fitPanelTimer = setTimeout(fitPageToPanel, 100);
+  });
+  setTimeout(fitPageToPanel, 100);
   </script>
 </body>
 </html>
