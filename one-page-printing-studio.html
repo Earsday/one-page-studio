@@ -1089,8 +1089,9 @@
     }
 
     .about-row {
-      display: flex;
-      gap: 16px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px 16px;
       align-items: baseline;
     }
 
@@ -1100,7 +1101,8 @@
       text-transform: uppercase;
       color: var(--ink-faint);
       font-family: var(--mono);
-      min-width: 80px;
+      text-align: right;
+      white-space: nowrap;
       flex-shrink: 0;
     }
 
@@ -1108,6 +1110,7 @@
       font-size: var(--ui-sz);
       color: var(--ink);
       font-family: var(--mono);
+      text-align: left;
     }
 
     .about-link {
