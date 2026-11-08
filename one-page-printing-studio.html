@@ -145,7 +145,9 @@
 
     #page-scale-wrapper {
       flex: 1;
-      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       min-height: 0;
       overflow: hidden;
@@ -1211,9 +1213,10 @@
         box-shadow: none !important;
         page-break-after: avoid;
         background-image: none !important;
+        zoom: 1 !important;
         transform: none !important;
         position: static !important;
-        margin: 0 !important;
+        margin: 0 auto !important;
       }
       .no-print { display: none !important; }
     }
@@ -2314,28 +2317,21 @@
   function fitPageToPanel() {
     var wrapper = document.getElementById('page-scale-wrapper');
     if (!wrapper) return;
-    void wrapper.offsetHeight; // force reflow
+    void wrapper.offsetHeight;
     var availW = wrapper.clientWidth;
     var availH = wrapper.clientHeight;
     if (availW < 50 || availH < 50) return;
     var page = document.getElementById('a4-page');
-    // Temporarily reset to static to measure true mm dimensions
-    page.style.position = 'static';
-    page.style.transform = '';
-    void page.offsetWidth; // force reflow to get true mm size
-    var pageW = page.offsetWidth;
-    var pageH = page.offsetHeight;
-    if (pageW < 10 || pageH < 10) { page.style.position = 'absolute'; return; }
+    var pageW = parseInt(page.dataset.paperW) || Math.round(297 * 96 / 25.4);
+    var pageH = parseInt(page.dataset.paperH) || Math.round(210 * 96 / 25.4);
+    if (pageW < 10 || pageH < 10) return;
     var scale = Math.min(availW / pageW, availH / pageH) * 0.97;
-    var scaledW = Math.floor(pageW * scale);
-    var scaledH = Math.floor(pageH * scale);
-    var topOffset = Math.max(0, Math.floor((availH - scaledH) / 2));
-    var leftOffset = Math.floor((availW - scaledW) / 2);
-    page.style.position = 'absolute';
-    page.style.transform = 'scale(' + scale + ')';
-    page.style.transformOrigin = 'top left';
-    page.style.top = topOffset + 'px';
-    page.style.left = leftOffset + 'px';
+    // zoom affects layout (unlike transform), so the page occupies scaled size in flow
+    page.style.zoom = scale;
+    page.style.transform = 'none';
+    page.style.position = 'relative';
+    page.style.top = '';
+    page.style.left = '';
     page.style.marginTop = '';
     page.style.marginBottom = '';
   }
@@ -3444,6 +3440,19 @@
     document.getElementById('text-input').focus();
   }
   setTimeout(function () { _inputReady = true; }, 300);
+
+  // ── Restore real mm dimensions for print, re-apply scaled px after ───────
+  window.addEventListener('beforeprint', function () {
+    var page = document.getElementById('a4-page');
+    var pw = parseInt(page.dataset.paperW), ph = parseInt(page.dataset.paperH);
+    if (pw && ph) {
+      page.style.width  = pw + 'px';
+      page.style.height = ph + 'px';
+    }
+  });
+  window.addEventListener('afterprint', function () {
+    fitPageToPanel();
+  });
 
   var _fitPanelTimer = null;
   (function() {
